@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
@@ -13,7 +14,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@RestController
 
 public class CurrencyConverterController {
 
@@ -28,7 +29,6 @@ public class CurrencyConverterController {
     }
 
     @GetMapping("/convert")
-    @ResponseBody
     public double convertCurrency(@RequestParam("source") String sourceCurrency,
                                   @RequestParam("target") String targetCurrency,
                                   @RequestParam("amount") double amount) {
@@ -46,13 +46,13 @@ public class CurrencyConverterController {
 
         // Calculate the converted amount and return it
         double convertedAmount = amount * exchangeRate;
-        System.out.println("**********   "+convertedAmount);
         return convertedAmount;
     }
 
     private void updateExchangeRatesCache() {
         String url = exchangeRatesUrl + "?app_id=" + apiKey + "&base=USD";
         ResponseEntity<ExchangeRatesResponse> response = restTemplate.getForEntity(url, ExchangeRatesResponse.class);
+
         ExchangeRatesResponse exchangeRates = response.getBody();
 
         exchangeRatesCache.clear();
@@ -60,6 +60,7 @@ public class CurrencyConverterController {
             String currencyPair = "USD_" + currencyCode;
             exchangeRatesCache.put(currencyPair, exchangeRate);
         });
+
 
         lastExchangeRatesUpdate = Instant.now();
     }
